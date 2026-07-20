@@ -5,6 +5,8 @@ Satu repository, dua modul:
 - **Task 1:** Laravel JSON API untuk order flash sale dan inventory concurrency.
 - **Task 2:** standalone PHP CLI untuk hidden-item solver.
 
+Tahapan implementasi: [`docs/PLAN_A_IMPLEMENTATION.md`](docs/PLAN_A_IMPLEMENTATION.md).
+
 ## Struktur
 
 ```text
