@@ -1,8 +1,9 @@
 *.log
 .DS_Store
 .env
-.env.backup
+.env.testing
 .env.production
+.env.development
 .phpactor.json
 .phpunit.result.cache
 /.codex
@@ -25,3 +26,9 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local assessment planning and verification artifacts
+/docs/PLAN_A_IMPLEMENTATION.md
+/phpunit.xml
+/scripts/
+/tests/

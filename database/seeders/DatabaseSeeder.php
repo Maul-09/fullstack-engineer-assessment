@@ -2,24 +2,23 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        Product::query()->updateOrCreate(
+            ['sku' => 'FLASH-001'],
+            [
+                'name' => 'Wireless Mechanical Keyboard K87',
+                'regular_price' => 100000,
+                'flash_price' => 10000,
+                'inventory_quantity' => 10,
+                'flash_starts_at' => now()->subHour(),
+                'flash_ends_at' => now()->addDay(),
+            ],
+        );
     }
 }
