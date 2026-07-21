@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-const TASK_GRID = [
+const GRID = [
     '########',
     '#......#',
     '#.###..#',
@@ -11,133 +11,94 @@ const TASK_GRID = [
     '########',
 ];
 
-try {
-    exit(run($argv));
-} catch (InvalidArgumentException $exception) {
-    fwrite(STDERR, 'ERROR: '.$exception->getMessage().PHP_EOL);
+$option = $argv[1] ?? null;
+
+if (count($argv) > 2 || ! in_array($option, [null, '--mark', '--self-test'], true)) {
     fwrite(STDERR, 'Usage: php task2/hidden-item.php [--mark|--self-test]'.PHP_EOL);
-
     exit(2);
-} catch (Throwable $exception) {
-    fwrite(STDERR, 'ERROR: '.$exception->getMessage().PHP_EOL);
-
-    exit(1);
 }
 
-function run(array $arguments): int
-{
-    $options = array_slice($arguments, 1);
+$locations = findPossibleLocations(GRID);
 
-    if (count($options) > 1 || ($options !== [] && ! in_array($options[0], ['--mark', '--self-test'], true))) {
-        throw new InvalidArgumentException('Opsi tidak dikenali.');
-    }
-
-    $endpoints = findHiddenItemEndpoints(TASK_GRID);
-
-    if ($options === ['--self-test']) {
-        return runSelfTest($endpoints);
-    }
-
-    fwrite(STDOUT, formatCoordinates($endpoints).PHP_EOL);
-
-    if ($options === ['--mark']) {
-        fwrite(STDOUT, PHP_EOL.implode(PHP_EOL, markEndpoints(TASK_GRID, $endpoints)).PHP_EOL);
-    }
-
-    return 0;
+if ($option === '--self-test') {
+    exit(runSelfTest($locations));
 }
 
-function findHiddenItemEndpoints(array $grid): array
-{
-    assertValidGrid($grid);
-    [$originX, $originY] = findOrigin($grid);
-    $endpoints = [];
+fwrite(STDOUT, formatCoordinates($locations).PHP_EOL);
 
-    for ($northY = $originY - 1; isClear($grid, $originX, $northY); $northY--) {
-        for ($eastX = $originX + 1; isClear($grid, $eastX, $northY); $eastX++) {
-            for ($southY = $northY + 1; isClear($grid, $eastX, $southY); $southY++) {
-                $endpoints["{$eastX},{$southY}"] = ['x' => $eastX, 'y' => $southY];
+if ($option === '--mark') {
+    fwrite(STDOUT, PHP_EOL.implode(PHP_EOL, markLocations(GRID, $locations)).PHP_EOL);
+}
+
+function findPossibleLocations(array $grid): array
+{
+    $start = findStart($grid);
+
+    if ($start === null) {
+        return [];
+    }
+
+    [$startX, $startY] = $start;
+    $locations = [];
+
+    for ($northY = $startY - 1; isOpen($grid, $startX, $northY); $northY--) {
+        for ($eastX = $startX + 1; isOpen($grid, $eastX, $northY); $eastX++) {
+            for ($southY = $northY + 1; isOpen($grid, $eastX, $southY); $southY++) {
+                $locations["{$eastX},{$southY}"] = ['x' => $eastX, 'y' => $southY];
             }
         }
     }
 
-    $endpoints = array_values($endpoints);
+    $locations = array_values($locations);
     usort(
-        $endpoints,
+        $locations,
         static fn (array $left, array $right): int => [$left['y'], $left['x']] <=> [$right['y'], $right['x']],
     );
 
-    return $endpoints;
+    return $locations;
 }
 
-function assertValidGrid(array $grid): void
+function findStart(array $grid): ?array
 {
-    if ($grid === [] || $grid[0] === '') {
-        throw new InvalidArgumentException('Grid tidak boleh kosong.');
-    }
-
-    $width = strlen($grid[0]);
-
-    foreach ($grid as $row) {
-        if (! is_string($row) || strlen($row) !== $width) {
-            throw new InvalidArgumentException('Setiap baris grid harus memiliki panjang yang sama.');
-        }
-    }
-}
-
-function findOrigin(array $grid): array
-{
-    $origin = null;
-
     foreach ($grid as $y => $row) {
-        for ($x = 0, $width = strlen($row); $x < $width; $x++) {
-            if ($row[$x] !== 'X') {
-                continue;
-            }
+        $x = strpos($row, 'X');
 
-            if ($origin !== null) {
-                throw new InvalidArgumentException('Grid hanya boleh memiliki satu titik X.');
-            }
-
-            $origin = [$x, $y];
+        if ($x !== false) {
+            return [$x, $y];
         }
     }
 
-    if ($origin === null) {
-        throw new InvalidArgumentException('Titik X tidak ditemukan pada grid.');
-    }
-
-    return $origin;
+    return null;
 }
 
-function isClear(array $grid, int $x, int $y): bool
+function isOpen(array $grid, int $x, int $y): bool
 {
     return isset($grid[$y][$x]) && $grid[$y][$x] === '.';
 }
 
-function formatCoordinates(array $endpoints): string
+function formatCoordinates(array $locations): string
 {
     return implode(
         PHP_EOL,
         array_map(
-            static fn (array $endpoint): string => "({$endpoint['x']},{$endpoint['y']})",
-            $endpoints,
+            static fn (array $location): string => "({$location['x']},{$location['y']})",
+            $locations,
         ),
     );
 }
 
-function markEndpoints(array $grid, array $endpoints): array
+function markLocations(array $grid, array $locations): array
 {
-    foreach ($endpoints as $endpoint) {
-        $grid[$endpoint['y']][$endpoint['x']] = '$';
+    foreach ($locations as $location) {
+        $grid[$location['y']][$location['x']] = '$';
     }
 
     return $grid;
 }
 
-function runSelfTest(array $actualEndpoints): int
+function runSelfTest(array $actualLocations): int
 {
-    $expectedEndpoints = [
+    $expectedLocations = [
         ['x' => 5, 'y' => 2],
         ['x' => 6, 'y' => 2],
         ['x' => 5, 'y' => 3],
@@ -155,12 +116,16 @@ function runSelfTest(array $actualEndpoints): int
         '########',
     ];
 
-    if ($actualEndpoints !== $expectedEndpoints) {
-        throw new RuntimeException('Self-test koordinat gagal. Aktual: '.formatCoordinates($actualEndpoints));
+    if ($actualLocations !== $expectedLocations) {
+        fwrite(STDERR, 'Self-test koordinat gagal.'.PHP_EOL);
+
+        return 1;
     }
 
-    if (markEndpoints(TASK_GRID, $actualEndpoints) !== $expectedMarkedGrid) {
-        throw new RuntimeException('Self-test marked grid gagal.');
+    if (markLocations(GRID, $actualLocations) !== $expectedMarkedGrid) {
+        fwrite(STDERR, 'Self-test marked grid gagal.'.PHP_EOL);
+
+        return 1;
     }
 
     fwrite(STDOUT, 'PASS coordinates=7 marked_grid=PASS'.PHP_EOL);

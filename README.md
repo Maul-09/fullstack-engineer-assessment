@@ -2,7 +2,7 @@
 
 Repository ini berisi dua task:
 
-- **Task 1:** Laravel JSON API untuk flash-sale order dan inventory concurrency.
+- **Task 1:** Laravel JSON API untuk order flash sale dan pengurangan stok.
 - **Task 2:** standalone PHP CLI untuk mencari kemungkinan lokasi hidden item.
 
 Project bersifat API-only. Tidak ada frontend, authentication, cart, payment,
@@ -22,7 +22,7 @@ app/                    Task 1 controllers and Eloquent models
 database/migrations/    PostgreSQL schema
 database/seeders/       Demo flash-sale Product
 routes/api.php          Business API routes
-task2/hidden-item.php   Standalone Task 2 CLI and self-test
+task2/hidden-item.php   Program CLI untuk Task 2
 docs/docs_api.yaml      Swagger/OpenAPI contract
 ```
 
@@ -38,7 +38,7 @@ docs/docs_api.yaml      Swagger/OpenAPI contract
 - Jarak North, East, dan South adalah integer positif dan seluruh lintasan harus
   melewati cell `.`.
 
-## Arsitektur Task 1
+## Cara Kerja Task 1
 
 API menggunakan controller Laravel, Eloquent model, dan PostgreSQL. Order dibuat
 dalam satu database transaction. Inventory dikurangi menggunakan conditional
@@ -193,9 +193,9 @@ Expected:
 PASS coordinates=7 marked_grid=PASS
 ```
 
-## Verifikasi Internal
+## Pengecekan
 
-Sebelum submission, implementasi diverifikasi menggunakan command berikut:
+Sebelum dikirim, implementasi dicek dengan command berikut:
 
 ```powershell
 composer validate --strict
@@ -206,7 +206,7 @@ php task2\hidden-item.php --self-test
 php artisan route:list --path=api
 ```
 
-Actual output terakhir:
+Hasil terakhir:
 
 ```text
 Composer                  PASS
@@ -217,10 +217,10 @@ Task 2 self-test          PASS coordinates=7 marked_grid=PASS
 Business API routes       PASS (2 routes)
 ```
 
-Task 1 test dan race-test artifacts disimpan local-only dan tidak menjadi bagian
-dari submission repository.
+File test dan race test hanya dipakai secara lokal dan tidak ikut dikirim ke
+repository.
 
-## Deliberate Omissions
+## Di Luar Scope
 
 - Tidak ada frontend karena scope assessment adalah JSON API dan CLI.
 - Tidak ada authentication, cart, payment, shipping, queue, atau Redis.
