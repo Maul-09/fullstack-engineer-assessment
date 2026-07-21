@@ -154,6 +154,8 @@ Swagger Editor, atau Swagger UI.
 ## Task 2 Hidden Item
 
 Task 2 tidak melakukan bootstrap Laravel dan tidak membutuhkan Composer.
+Panduan penggunaan lengkap tersedia di
+[`docs/task2.md`](docs/task2.md).
 
 Tampilkan seluruh kandidat koordinat:
 
