@@ -5,17 +5,14 @@ Satu repository, dua modul:
 - **Task 1:** Laravel JSON API untuk order flash sale dan inventory concurrency.
 - **Task 2:** standalone PHP CLI untuk hidden-item solver.
 
-Tahapan implementasi: [`docs/PLAN_A_IMPLEMENTATION.md`](docs/PLAN_A_IMPLEMENTATION.md).
-
 ## Struktur
 
 ```text
 app/                    Task 1 application code
 database/               migrations and seeders
 routes/api.php          Task 1 API routes
-scripts/                Task 1 functional race test
 task2/                  Task 2 CLI and self-check
-tests/                  Task 1 automated tests
+docs/docs_api.yaml      Swagger/OpenAPI API contract
 ```
 
 ## Prasyarat
@@ -31,7 +28,27 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate --seed
-php artisan test
 ```
 
-Implementasi fitur belum dimulai; repository ini baru berisi struktur API-only.
+Lengkapi konfigurasi PostgreSQL pada `.env`, termasuk `DB_DATABASE`, sebelum
+menjalankan migration.
+
+## API
+
+Jalankan development server:
+
+```bash
+php artisan serve
+```
+
+Endpoint yang tersedia:
+
+```text
+GET  /up
+GET  /api/products
+POST /api/orders
+```
+
+Dokumentasi Swagger/OpenAPI tersedia di
+[`docs/docs_api.yaml`](docs/docs_api.yaml) dan dapat diimpor ke Swagger Editor
+atau Swagger UI.

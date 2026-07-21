@@ -27,4 +27,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-/docs/PLAN_A_IMPLEMENTATION
+# Local assessment planning and verification artifacts
+/docs/PLAN_A_IMPLEMENTATION.md
+/phpunit.xml
+/scripts/
+/tests/

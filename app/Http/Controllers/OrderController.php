@@ -22,10 +22,16 @@ class OrderController extends Controller
             return $this->error('INVALID_JSON', 'JSON tidak valid.', 400);
         }
 
+        $strictInteger = static function (string $attribute, mixed $value, $fail): void {
+            if (! is_int($value)) {
+                $fail("The {$attribute} field must be an integer.");
+            }
+        };
+
         $validator = Validator::make($request->json()->all(), [
             'items' => ['required', 'array', 'min:1', 'max:100'],
-            'items.*.product_id' => ['required', 'integer', 'min:1'],
-            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:1000'],
+            'items.*.product_id' => ['required', $strictInteger, 'integer', 'min:1'],
+            'items.*.quantity' => ['required', $strictInteger, 'integer', 'min:1', 'max:1000'],
         ]);
 
         if ($validator->fails()) {
